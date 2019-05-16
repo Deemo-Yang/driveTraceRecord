@@ -671,6 +671,11 @@ id action_mode_close_button
 id action_text
 id actions
 id activity_chooser_view_content
+id activity_track_search_bindroad
+id activity_track_search_map
+id activity_track_search_recoup
+id activity_track_search_search_points
+id activity_track_search_search_track
 id activity_track_service_start_gather
 id activity_track_service_start_track
 id add
@@ -682,6 +687,7 @@ id barrier
 id beginning
 id blocking
 id bottom
+id btnjump
 id buttonPanel
 id center
 id center_horizontal
@@ -831,6 +837,7 @@ layout abc_search_view
 layout abc_select_dialog_material
 layout abc_tooltip
 layout activity_main
+layout activity_track_search
 layout notification_action
 layout notification_action_tombstone
 layout notification_template_custom_big

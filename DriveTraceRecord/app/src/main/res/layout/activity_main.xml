@@ -39,6 +39,16 @@
             android:text="开始收集"
             android:background="#D3D3D3"/>
 
+        <TextView
+            android:id="@+id/btnjump"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="10dp"
+            android:gravity="center"
+            android:text="查询轨迹"
+            android:background="#D3D3D3"/>
+
     </LinearLayout>
 
     <ToggleButton

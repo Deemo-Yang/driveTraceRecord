@@ -81,6 +81,7 @@ public class MainActivity extends AppCompatActivity implements LocationSource,AM
     private boolean isGatherRunning;
     private TextView startTrackView;
     private TextView startGatherView;
+    private TextView btnJump;
     private long terminalId;
     private long trackId;
     private boolean uploadToTrack = false;
@@ -114,6 +115,15 @@ public class MainActivity extends AppCompatActivity implements LocationSource,AM
         aMapTrackClient.setInterval(2, 20);
         startTrackView = findViewById(R.id.activity_track_service_start_track);
         startGatherView = findViewById(R.id.activity_track_service_start_gather);
+        btnJump = findViewById(R.id.btnjump);
+        btnJump.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this,TrackSearchActivity.class);
+                startActivity(intent);
+            }
+        });
+
         updateBtnStatus();
         startTrackView.setOnClickListener(new View.OnClickListener() {
             @Override
