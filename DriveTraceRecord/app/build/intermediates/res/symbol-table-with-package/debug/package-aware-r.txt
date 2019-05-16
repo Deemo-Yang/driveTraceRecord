@@ -628,6 +628,8 @@ drawable abc_textfield_search_activated_mtrl_alpha
 drawable abc_textfield_search_default_mtrl_alpha
 drawable abc_textfield_search_material
 drawable abc_vector_test
+drawable btn_circle
+drawable grasp_trace_line
 drawable ic_launcher_background
 drawable ic_launcher_foreground
 drawable notification_action_background
@@ -669,6 +671,8 @@ id action_mode_close_button
 id action_text
 id actions
 id activity_chooser_view_content
+id activity_track_service_start_gather
+id activity_track_service_start_track
 id add
 id alertTitle
 id all
@@ -722,6 +726,7 @@ id line1
 id line3
 id listMode
 id list_item
+id locationbtn
 id map
 id message
 id middle

@@ -21,6 +21,9 @@
             android:value="1c6b34cae3ef083477c7f697c6b5d698">
 
         </meta-data>
+
+        <service android:name="com.amap.api.track.AMapTrackService" />
+        <service android:name="com.amap.api.location.APSService" />
     </application>
 
     <!--用于进行网络定位-->
