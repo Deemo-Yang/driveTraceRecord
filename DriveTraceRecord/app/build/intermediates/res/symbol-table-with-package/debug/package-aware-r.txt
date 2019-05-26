@@ -373,6 +373,7 @@ color background_floating_material_dark
 color background_floating_material_light
 color background_material_dark
 color background_material_light
+color bg_white
 color bright_foreground_disabled_material_dark
 color bright_foreground_disabled_material_light
 color bright_foreground_inverse_material_dark
@@ -389,6 +390,7 @@ color dim_foreground_disabled_material_dark
 color dim_foreground_disabled_material_light
 color dim_foreground_material_dark
 color dim_foreground_material_light
+color div_white
 color error_color_material_dark
 color error_color_material_light
 color foreground_material_dark
@@ -629,6 +631,7 @@ drawable abc_textfield_search_activated_mtrl_alpha
 drawable abc_textfield_search_default_mtrl_alpha
 drawable abc_textfield_search_material
 drawable abc_vector_test
+drawable bg
 drawable border
 drawable btn_circle
 drawable grasp_trace_line
@@ -646,6 +649,10 @@ drawable notification_template_icon_bg
 drawable notification_template_icon_low_bg
 drawable notification_tile_bg
 drawable notify_panel_notification_icon_bg
+drawable tab_menu_bg
+drawable tab_menu_channel
+drawable tab_menu_message
+drawable tab_menu_text
 drawable tooltip_frame_dark
 drawable tooltip_frame_light
 id ALT
@@ -684,6 +691,7 @@ id all
 id always
 id async
 id barrier
+id beginDrive
 id beginning
 id blocking
 id bottom
@@ -701,6 +709,7 @@ id content
 id contentPanel
 id custom
 id customPanel
+id date
 id decor_content_parent
 id default_activity_button
 id dimensions
@@ -710,6 +719,7 @@ id dis_all_speed
 id dis_all_time
 id dis_ave_speed
 id disableHome
+id div_tab_bar
 id edit_query
 id end
 id expand_activities_button
@@ -736,6 +746,9 @@ id line3
 id listMode
 id list_item
 id locationbtn
+id ly_content
+id ly_tab_bar
+id ly_top_bar
 id map
 id message
 id middle
@@ -753,6 +766,7 @@ id percent
 id progress_circular
 id progress_horizontal
 id radio
+id record
 id right
 id right_icon
 id right_side
@@ -779,7 +793,6 @@ id showTitle
 id show_all_dis
 id show_all_speed
 id show_all_time
-id show_ave_speed
 id spacer
 id split_action_bar
 id spread
@@ -805,6 +818,10 @@ id titleDividerNoCustom
 id title_template
 id top
 id topPanel
+id txt_channel
+id txt_content
+id txt_message
+id txt_topbar
 id uniform
 id up
 id useLogo
@@ -844,7 +861,9 @@ layout abc_search_dropdown_item_icons_2line
 layout abc_search_view
 layout abc_select_dialog_material
 layout abc_tooltip
+layout activity_home_page
 layout activity_main
+layout activity_my_fragment
 layout activity_track_search
 layout notification_action
 layout notification_action_tombstone
@@ -852,12 +871,19 @@ layout notification_template_custom_big
 layout notification_template_icon_group
 layout notification_template_part_chronometer
 layout notification_template_part_time
+layout record_list
+layout recorditem
 layout select_dialog_item_material
 layout select_dialog_multichoice_material
 layout select_dialog_singlechoice_material
 layout support_simple_spinner_dropdown_item
+mipmap car
 mipmap ic_launcher
 mipmap ic_launcher_round
+mipmap tab_car_normal
+mipmap tab_car_pressed
+mipmap tab_record_normal
+mipmap tab_record_pressed
 string abc_action_bar_home_description
 string abc_action_bar_up_description
 string abc_action_menu_overflow_description

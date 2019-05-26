@@ -3,6 +3,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+
+
+
+
     <com.amap.api.maps.MapView
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/map"
@@ -67,6 +71,23 @@
                 />
         </LinearLayout>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0px"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:layout_gravity="center"
+                android:text="实时速度"
+                android:textColor="#000000"/>
+
+        </LinearLayout>
+
         <View
             android:layout_width="match_parent"
             android:layout_height="0.5dp"
@@ -101,25 +122,7 @@
                 android:layout_marginLeft="10dp"
                 android:background="#9C9C9C"
                 />
-            <TextView
-                android:id="@+id/show_ave_speed"
-                android:layout_width="0px"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:layout_gravity="center"
-                android:text="0.0 km/h"
-                android:textColor="@android:color/black"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-            <View
-                android:layout_width="0.5dp"
-                android:layout_height="match_parent"
-                android:layout_marginLeft="10dp"
 
-                android:background="#9C9C9C"
-
-                />
             <TextView
                 android:id="@+id/show_all_dis"
                 android:layout_width="0px"
@@ -127,7 +130,7 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:layout_gravity="center"
-                android:text="0.0 公里"
+                android:text="0.00"
                 android:textColor="@android:color/black"
                 android:textSize="18sp"
                 android:textStyle="bold" />
@@ -145,7 +148,7 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:layout_gravity="center"
-                android:text="时长"
+                android:text="用时"
                 android:textColor="#000000"/>
             <View
                 android:layout_width="0.5dp"
@@ -161,24 +164,7 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:layout_gravity="center"
-                android:text="平均车速"
-                android:textColor="#000000"/>
-            <View
-                android:layout_width="0.5dp"
-                android:layout_height="match_parent"
-                android:layout_marginLeft="10dp"
-
-                android:background="#9C9C9C"
-
-                />
-
-            <TextView
-                android:layout_width="0px"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:layout_gravity="center"
-                android:text="里程"
+                android:text="公里"
                 android:textColor="#000000"/>
         </LinearLayout>
 

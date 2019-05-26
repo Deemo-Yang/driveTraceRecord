@@ -30,14 +30,19 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:testOnly="true"
-        android:theme="@style/AppTheme" >
-        <activity android:name="com.example.drivetracerecord.TrackSearchActivity" />
-        <activity android:name="com.example.drivetracerecord.MainActivity" >
+        android:theme="@style/Theme.AppCompat.NoActionBar" >
+        <activity android:name="com.example.drivetracerecord.HomePage" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity android:name="com.example.drivetracerecord.TrackSearchActivity" />
+        <activity
+            android:name="com.example.drivetracerecord.MainActivity"
+            android:label="DriveTraceRecord"
+            android:screenOrientation="portrait" >
         </activity>
 
         <meta-data

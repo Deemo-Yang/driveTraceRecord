@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="驾车总里程："
+        android:textColor="#424242"
+        android:typeface="sans"
+        android:textSize="28dp"/>
+
+    <TextView
+        android:id="@+id/txt_content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="0.00KM"
+        android:textColor="#000000"
+        android:textSize="40dp"
+        android:typeface="normal"
+        android:layout_gravity="center_horizontal"/>
+
+    <!--<TextView-->
+    <!--android:id="@+id/txt_drive_times"-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:gravity="right"-->
+    <!--android:text="驾车 0 次"-->
+    <!--android:textColor="#000000"-->
+    <!--android:textSize="28dp"-->
+    <!--android:typeface="normal"-->
+    <!--android:layout_gravity="center_horizontal"/>-->
+
+
+
+
+</LinearLayout>

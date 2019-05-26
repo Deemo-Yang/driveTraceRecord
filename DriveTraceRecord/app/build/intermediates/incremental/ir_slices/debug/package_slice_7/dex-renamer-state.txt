@@ -1,4 +1,4 @@
-#Sun May 26 18:51:30 CST 2019
+#Sun May 26 20:53:45 CST 2019
 base.0=/Users/yangwenying/Desktop/Doc/work/TraceRecord/DriveTraceRecord/app/build/intermediates/transforms/dexMerger/debug/7
 path.0=classes.dex
 renamed.0=classes.dex

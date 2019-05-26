@@ -117,7 +117,7 @@ public class MainActivity extends AppCompatActivity implements LocationSource,AM
                 if (btn.isChecked()) {
                     startTrack();
                     aMapTrackClient.setTrackId(trackId);
-                    aMapTrackClient.startGather(onTrackListener);
+
                     record = new PathRecord();
                     mStartTime = System.currentTimeMillis();
                     record.setDate(getcueDate(mStartTime)); //记录开始时间
@@ -211,9 +211,8 @@ public class MainActivity extends AppCompatActivity implements LocationSource,AM
                     double tDis;
                     tDis = getDistance(record.getPathline());
                     tDis = tDis/1000;
-                    mResultShowDis.setText(String.valueOf(decimalFormat.format(tDis)));
+                    mResultShowDis.setText(decimalFormat.format(tDis) + "公里");
                     mResultShowSpeed = findViewById(R.id.show_all_speed);
-                    mResultShowAveSpeed = findViewById(R.id.show_ave_speed);
                     double temp = (amapLocation.getSpeed()*10)/3;
                     if (temp > 10 && temp< 40 ){
                         temp = temp + 8;
@@ -221,7 +220,7 @@ public class MainActivity extends AppCompatActivity implements LocationSource,AM
                     if (temp >= 40) {
                         temp = temp + 10;
                     }
-                    mResultShowSpeed.setText(String.valueOf(decimalFormat.format(temp)) + "km/h");    //显示行车速度
+                    mResultShowSpeed.setText(String.valueOf(decimalFormat.format(temp)));    //显示行车速度
 //                    mEndTime = System.currentTimeMillis();
 //                    temp = (float) tDis/rTime;
 //                    double tSpeed = temp * 3600;
@@ -424,6 +423,8 @@ public class MainActivity extends AppCompatActivity implements LocationSource,AM
                                             trackParam.setNotification(createNotification());
                                         }
                                         aMapTrackClient.startTrack(trackParam, onTrackListener);
+                                        aMapTrackClient.setTrackId(trackId);
+                                        aMapTrackClient.startGather(onTrackListener);
                                     } else {
                                         Toast.makeText(MainActivity.this, "网络请求失败，" + addTrackResponse.getErrorMsg(), Toast.LENGTH_SHORT).show();
                                     }
