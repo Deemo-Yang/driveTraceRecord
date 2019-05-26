@@ -5,8 +5,11 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.CheckBox;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.amap.api.location.AMapLocation;
+import com.amap.api.maps.AMapUtils;
 import com.amap.api.maps.CameraUpdateFactory;
 import com.amap.api.maps.TextureMapView;
 import com.amap.api.maps.model.BitmapDescriptorFactory;
@@ -28,8 +31,12 @@ import com.amap.api.track.query.model.QueryTerminalResponse;
 import com.amap.api.track.query.model.QueryTrackRequest;
 import com.amap.api.track.query.model.QueryTrackResponse;
 
+import java.text.DecimalFormat;
 import java.util.LinkedList;
 import java.util.List;
+
+import util.Constants;
+import util.SimpleOnTrackListener;
 
 /**
  * 轨迹查询示例
@@ -45,6 +52,7 @@ public class TrackSearchActivity extends Activity {
     private TextureMapView textureMapView;
     private List<Polyline> polylines = new LinkedList<>();
     private List<Marker> endMarkers = new LinkedList<>();
+    private TextView mDisplayDistance;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,6 +99,7 @@ public class TrackSearchActivity extends Activity {
                                     public void onQueryTrackCallback(QueryTrackResponse queryTrackResponse) {
                                         if (queryTrackResponse.isSuccess()) {
                                             List<Track> tracks =  queryTrackResponse.getTracks();
+                                            mDisplayDistance = findViewById(R.id.dis_all_dis);
                                             if (tracks != null && !tracks.isEmpty()) {
                                                 boolean allEmpty = true;
                                                 for (Track track : tracks) {
@@ -98,6 +107,8 @@ public class TrackSearchActivity extends Activity {
                                                     if (points != null && points.size() > 0) {
                                                         allEmpty = false;
                                                         drawTrackOnMap(points);
+                                                        DecimalFormat decimalFormat = new DecimalFormat("0.00");
+                                                        mDisplayDistance.setText(String.valueOf(decimalFormat.format(getDistance(points)/1000)));
                                                     }
                                                 }
                                                 if (allEmpty) {
@@ -168,6 +179,9 @@ public class TrackSearchActivity extends Activity {
                                             }
                                             List<Point> points = historyTrack.getPoints();
                                             drawTrackOnMap(points);
+                                            mDisplayDistance = findViewById(R.id.dis_all_dis);
+                                            DecimalFormat decimalFormat = new DecimalFormat("0.00");
+                                            mDisplayDistance.setText(String.valueOf(decimalFormat.format(getDistance(points)/1000)));
                                         } else {
                                             Toast.makeText(TrackSearchActivity.this, "查询历史轨迹点失败，" + historyTrackResponse.getErrorMsg(), Toast.LENGTH_SHORT).show();
                                         }
@@ -192,7 +206,9 @@ public class TrackSearchActivity extends Activity {
     private void drawTrackOnMap(List<Point> points) {
         LatLngBounds.Builder boundsBuilder = new LatLngBounds.Builder();
         PolylineOptions polylineOptions = new PolylineOptions();
-        polylineOptions.color(Color.BLUE).width(20);
+        polylineOptions.width(40);
+        polylineOptions.setCustomTexture(BitmapDescriptorFactory.fromResource(R.drawable.grasp_trace_line));
+
         if (points.size() > 0) {
             // 起点
             Point p = points.get(0);
@@ -219,6 +235,21 @@ public class TrackSearchActivity extends Activity {
         Polyline polyline = textureMapView.getMap().addPolyline(polylineOptions);
         polylines.add(polyline);
         textureMapView.getMap().animateCamera(CameraUpdateFactory.newLatLngBounds(boundsBuilder.build(), 30));
+    }
+
+    private float getDistance(List<Point> list) {
+        float distance = 0;
+        if (list == null || list.size() == 0) {
+            return distance;
+        }
+        for (int i = 0; i < list.size() - 1; i++) {
+            LatLng firstLatLng = new LatLng(list.get(i).getLat(),list.get(i).getLng());
+            LatLng secondLatLng = new LatLng(list.get(i+1).getLat(),list.get(i+1).getLng());
+            double betweenDis = AMapUtils.calculateLineDistance(firstLatLng,
+                    secondLatLng);
+            distance = (float) (distance + betweenDis);
+        }
+        return distance;
     }
 
     private void clearTracksOnMap() {

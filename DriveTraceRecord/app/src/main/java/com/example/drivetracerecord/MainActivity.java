@@ -10,15 +10,15 @@ import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.nfc.Tag;
 import android.os.Build;
-import android.provider.SyncStateContract;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -28,6 +28,7 @@ import com.amap.api.location.AMapLocationClient;
 import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
 import com.amap.api.maps.AMap;
+import com.amap.api.maps.AMapUtils;
 import com.amap.api.maps.CameraUpdateFactory;
 import com.amap.api.maps.LocationSource;
 import com.amap.api.maps.MapView;
@@ -48,10 +49,16 @@ import com.amap.api.track.query.model.AddTrackResponse;
 import com.amap.api.track.query.model.QueryTerminalRequest;
 import com.amap.api.track.query.model.QueryTerminalResponse;
 
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import util.Constants;
+import util.PathRecord;
+import util.SimpleOnTrackLifecycleListener;
+import util.SimpleOnTrackListener;
 
 public class MainActivity extends AppCompatActivity implements LocationSource,AMapLocationListener {
 
@@ -84,7 +91,13 @@ public class MainActivity extends AppCompatActivity implements LocationSource,AM
     private TextView btnJump;
     private long terminalId;
     private long trackId;
-    private boolean uploadToTrack = false;
+    private boolean uploadToTrack = true;
+
+    private TextView mResultShowDis;
+    private TextView mResultShowSpeed;
+    private TextView mResultShowAveSpeed;
+
+    private DbAdapter DbHepler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,52 +115,25 @@ public class MainActivity extends AppCompatActivity implements LocationSource,AM
             @Override
             public void onClick(View v) {
                 if (btn.isChecked()) {
+                    startTrack();
+                    aMapTrackClient.setTrackId(trackId);
+                    aMapTrackClient.startGather(onTrackListener);
                     record = new PathRecord();
                     mStartTime = System.currentTimeMillis();
                     record.setDate(getcueDate(mStartTime)); //记录开始时间
                 }else {
+                    aMapTrackClient.stopGather(onTrackListener);
+                    aMapTrackClient.stopTrack(new TrackParam(Constants.SERVICE_ID, terminalId), onTrackListener);
                     mEndTime = System.currentTimeMillis();  //记录结束时间
+                    saveRecord(record.getPathline(), record.getDate());
+
+                    Intent intent = new Intent(MainActivity.this,TrackSearchActivity.class);
+                    startActivity(intent);
                 }
             }
         });
-
         aMapTrackClient = new AMapTrackClient(getApplicationContext());
         aMapTrackClient.setInterval(2, 20);
-        startTrackView = findViewById(R.id.activity_track_service_start_track);
-        startGatherView = findViewById(R.id.activity_track_service_start_gather);
-        btnJump = findViewById(R.id.btnjump);
-        btnJump.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this,TrackSearchActivity.class);
-                startActivity(intent);
-            }
-        });
-
-        updateBtnStatus();
-        startTrackView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (isServiceRunning) {
-                    aMapTrackClient.stopTrack(new TrackParam(Constants.SERVICE_ID, terminalId), onTrackListener);
-                } else {
-                    startTrack();
-                }
-            }
-        });
-        // 采集启停
-        startGatherView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (isGatherRunning) {
-                    aMapTrackClient.stopGather(onTrackListener);
-                } else {
-                    aMapTrackClient.setTrackId(trackId);
-                    aMapTrackClient.startGather(onTrackListener);
-                }
-            }
-        });
-
 
     }
 
@@ -200,9 +186,10 @@ public class MainActivity extends AppCompatActivity implements LocationSource,AM
             // 在定位结束后，在合适的生命周期调用onDestroy()方法
             // 在单次定位情况下，定位无论成功与否，都无需调用stopLocation()方法移除请求，定位sdk内部会移除
             mLocationClient.startLocation();
-        }
 
+        }
     }
+
 
     @Override
     public void onLocationChanged(AMapLocation amapLocation) {
@@ -217,6 +204,28 @@ public class MainActivity extends AppCompatActivity implements LocationSource,AM
                     record.addpoint(amapLocation);
                     mPolyoptions.add(mylocation);
                     redrawline();
+
+                    mResultShowDis = findViewById(R.id.show_all_dis);
+                    mResultShowSpeed = findViewById(R.id.show_all_speed);
+                    DecimalFormat decimalFormat = new DecimalFormat("0.00");
+                    double tDis;
+                    tDis = getDistance(record.getPathline());
+                    tDis = tDis/1000;
+                    mResultShowDis.setText(String.valueOf(decimalFormat.format(tDis)));
+                    mResultShowSpeed = findViewById(R.id.show_all_speed);
+                    mResultShowAveSpeed = findViewById(R.id.show_ave_speed);
+                    double temp = (amapLocation.getSpeed()*10)/3;
+                    if (temp > 10 && temp< 40 ){
+                        temp = temp + 8;
+                    }
+                    if (temp >= 40) {
+                        temp = temp + 10;
+                    }
+                    mResultShowSpeed.setText(String.valueOf(decimalFormat.format(temp)) + "km/h");    //显示行车速度
+//                    mEndTime = System.currentTimeMillis();
+//                    temp = (float) tDis/rTime;
+//                    double tSpeed = temp * 3600;
+//                    mResultShowAveSpeed.setText(String.valueOf(decimalFormat.format(tSpeed)+ "km/h"));
                 }
             }else {
                 String errText = "定位失败," + amapLocation.getErrorCode() + ": "
@@ -224,6 +233,81 @@ public class MainActivity extends AppCompatActivity implements LocationSource,AM
                 Log.e("AmapErr", errText);
             }
         }
+    }
+
+    protected void saveRecord(List<AMapLocation> list, String time) {
+        if (list != null && list.size() > 0) {
+            DbHepler = new DbAdapter(this);
+            DbHepler.open();
+            String duration = getDuration();
+            float distance = getDistance(list);
+            String average = getAverage(distance);
+            String pathlineSring = getPathLineString(list);
+            AMapLocation firstLocaiton = list.get(0);
+            AMapLocation lastLocaiton = list.get(list.size() - 1);
+            String stratpoint = amapLocationToString(firstLocaiton);
+            String endpoint = amapLocationToString(lastLocaiton);
+            DbHepler.createrecord(String.valueOf(distance), duration, average,
+                    pathlineSring, stratpoint, endpoint, time);
+            DbHepler.close();
+        } else {
+            Toast.makeText(MainActivity.this, "没有记录到路径", Toast.LENGTH_SHORT)
+                    .show();
+        }
+    }
+
+    private String getDuration() {
+        return String.valueOf((mEndTime - mStartTime) / 1000f);
+    }
+
+    private float getDistance(List<AMapLocation> list) {
+        float distance = 0;
+        if (list == null || list.size() == 0) {
+            return distance;
+        }
+        for (int i = 0; i < list.size() - 1; i++) {
+            AMapLocation firstpoint = list.get(i);
+            AMapLocation secondpoint = list.get(i + 1);
+            LatLng firstLatLng = new LatLng(firstpoint.getLatitude(),
+                    firstpoint.getLongitude());
+            LatLng secondLatLng = new LatLng(secondpoint.getLatitude(),
+                    secondpoint.getLongitude());
+            double betweenDis = AMapUtils.calculateLineDistance(firstLatLng,
+                    secondLatLng);
+            distance = (float) (distance + betweenDis);
+        }
+        return distance;
+    }
+
+    private String getAverage(float distance) {
+        return String.valueOf(distance / (float) (mEndTime - mStartTime));
+    }
+
+    private String getPathLineString(List<AMapLocation> list) {
+        if (list == null || list.size() == 0) {
+            return "";
+        }
+        StringBuffer pathline = new StringBuffer();
+        for (int i = 0; i < list.size(); i++) {
+            AMapLocation location = list.get(i);
+            String locString = amapLocationToString(location);
+            pathline.append(locString).append(";");
+        }
+        String pathLineString = pathline.toString();
+        pathLineString = pathLineString.substring(0,
+                pathLineString.length() - 1);
+        return pathLineString;
+    }
+
+    private String amapLocationToString(AMapLocation location) {
+        StringBuffer locString = new StringBuffer();
+        locString.append(location.getLatitude()).append(",");
+        locString.append(location.getLongitude()).append(",");
+        locString.append(location.getProvider()).append(",");
+        locString.append(location.getTime()).append(",");
+        locString.append(location.getSpeed()).append(",");
+        locString.append(location.getBearing());
+        return locString.toString();
     }
 
     private void redrawline() {
@@ -257,12 +341,10 @@ public class MainActivity extends AppCompatActivity implements LocationSource,AM
                 // 成功启动
                 Toast.makeText(MainActivity.this, "启动服务成功", Toast.LENGTH_SHORT).show();
                 isServiceRunning = true;
-                updateBtnStatus();
             } else if (status == ErrorCode.TrackListen.START_TRACK_ALREADY_STARTED) {
                 // 已经启动
                 Toast.makeText(MainActivity.this, "服务已经启动", Toast.LENGTH_SHORT).show();
                 isServiceRunning = true;
-                updateBtnStatus();
             } else {
                 Log.w(TAG, "error onStartTrackCallback, status: " + status + ", msg: " + msg);
                 Toast.makeText(MainActivity.this,
@@ -277,7 +359,6 @@ public class MainActivity extends AppCompatActivity implements LocationSource,AM
                 Toast.makeText(MainActivity.this, "停止服务成功", Toast.LENGTH_SHORT).show();
                 isServiceRunning = false;
                 isGatherRunning = false;
-                updateBtnStatus();
             } else {
                 Log.w(TAG, "error onStopTrackCallback, status: " + status + ", msg: " + msg);
                 Toast.makeText(MainActivity.this,
@@ -290,13 +371,10 @@ public class MainActivity extends AppCompatActivity implements LocationSource,AM
         @Override
         public void onStartGatherCallback(int status, String msg) {
             if (status == ErrorCode.TrackListen.START_GATHER_SUCEE) {
-                Toast.makeText(MainActivity.this, "定位采集开启成功", Toast.LENGTH_SHORT).show();
-                isGatherRunning = true;
-                updateBtnStatus();
+//                Toast.makeText(MainActivity.this, "定位采集开启成功", Toast.LENGTH_SHORT).show();
             } else if (status == ErrorCode.TrackListen.START_GATHER_ALREADY_STARTED) {
-                Toast.makeText(MainActivity.this, "定位采集已经开启", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(MainActivity.this, "定位采集已经开启", Toast.LENGTH_SHORT).show();
                 isGatherRunning = true;
-                updateBtnStatus();
             } else {
                 Log.w(TAG, "error onStartGatherCallback, status: " + status + ", msg: " + msg);
                 Toast.makeText(MainActivity.this,
@@ -310,7 +388,6 @@ public class MainActivity extends AppCompatActivity implements LocationSource,AM
             if (status == ErrorCode.TrackListen.STOP_GATHER_SUCCE) {
                 Toast.makeText(MainActivity.this, "定位采集停止成功", Toast.LENGTH_SHORT).show();
                 isGatherRunning = false;
-                updateBtnStatus();
             } else {
                 Log.w(TAG, "error onStopGatherCallback, status: " + status + ", msg: " + msg);
                 Toast.makeText(MainActivity.this,
@@ -320,14 +397,9 @@ public class MainActivity extends AppCompatActivity implements LocationSource,AM
         }
     };
 
-    private void updateBtnStatus() {
-        startTrackView.setText(isServiceRunning ? "停止服务" : "启动服务");
-        startTrackView.setTextColor(isServiceRunning ? 0xFFFFFFFF : 0xFF000000);
-        startGatherView.setText(isGatherRunning ? "停止采集" : "开始采集");
-        startGatherView.setTextColor(isGatherRunning ? 0xFFFFFFFF : 0xFF000000);
-    }
 
     private void startTrack() {
+        Log.d("TrackID","Here is First gate");
         // 先根据Terminal名称查询Terminal ID，如果Terminal还不存在，就尝试创建，拿到Terminal ID后，
         // 用Terminal ID开启轨迹服务
         aMapTrackClient.queryTerminal(new QueryTerminalRequest(Constants.SERVICE_ID, Constants.TERMINAL_NAME), new SimpleOnTrackListener() {
@@ -337,13 +409,16 @@ public class MainActivity extends AppCompatActivity implements LocationSource,AM
                     if (queryTerminalResponse.isTerminalExist()) {
                         // 当前终端已经创建过，直接使用查询到的terminal id
                         terminalId = queryTerminalResponse.getTid();
+                        Log.d("TrackID","Here is Second gate");
                         if (uploadToTrack) {
+                            Log.d("TrackID","Here is Tirthd gate");
                             aMapTrackClient.addTrack(new AddTrackRequest(Constants.SERVICE_ID, terminalId), new SimpleOnTrackListener() {
                                 @Override
                                 public void onAddTrackCallback(AddTrackResponse addTrackResponse) {
                                     if (addTrackResponse.isSuccess()) {
                                         // trackId需要在启动服务后设置才能生效，因此这里不设置，而是在startGather之前设置了track id
                                         trackId = addTrackResponse.getTrid();
+                                        Log.d("TrackID",String.valueOf(trackId));
                                         TrackParam trackParam = new TrackParam(Constants.SERVICE_ID, terminalId);
                                         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                                             trackParam.setNotification(createNotification());
@@ -469,6 +544,7 @@ public class MainActivity extends AppCompatActivity implements LocationSource,AM
         }
         mLocationClient = null;
     }
+
 
     @Override
     protected void onDestroy() {

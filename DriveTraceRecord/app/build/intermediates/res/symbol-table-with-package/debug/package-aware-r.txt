@@ -384,6 +384,7 @@ color button_material_light
 color colorAccent
 color colorPrimary
 color colorPrimaryDark
+color darkgrey
 color dim_foreground_disabled_material_dark
 color dim_foreground_disabled_material_light
 color dim_foreground_material_dark
@@ -628,6 +629,7 @@ drawable abc_textfield_search_activated_mtrl_alpha
 drawable abc_textfield_search_default_mtrl_alpha
 drawable abc_textfield_search_material
 drawable abc_vector_test
+drawable border
 drawable btn_circle
 drawable grasp_trace_line
 drawable ic_launcher_background
@@ -676,8 +678,6 @@ id activity_track_search_map
 id activity_track_search_recoup
 id activity_track_search_search_points
 id activity_track_search_search_track
-id activity_track_service_start_gather
-id activity_track_service_start_track
 id add
 id alertTitle
 id all
@@ -687,7 +687,6 @@ id barrier
 id beginning
 id blocking
 id bottom
-id btnjump
 id buttonPanel
 id center
 id center_horizontal
@@ -706,6 +705,10 @@ id decor_content_parent
 id default_activity_button
 id dimensions
 id direct
+id dis_all_dis
+id dis_all_speed
+id dis_all_time
+id dis_ave_speed
 id disableHome
 id edit_query
 id end
@@ -754,6 +757,7 @@ id right
 id right_icon
 id right_side
 id screen
+id screenshotview
 id scrollIndicatorDown
 id scrollIndicatorUp
 id scrollView
@@ -772,6 +776,10 @@ id shortcut
 id showCustom
 id showHome
 id showTitle
+id show_all_dis
+id show_all_speed
+id show_all_time
+id show_ave_speed
 id spacer
 id split_action_bar
 id spread
