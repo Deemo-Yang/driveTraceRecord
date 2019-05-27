@@ -633,6 +633,7 @@ drawable abc_textfield_search_material
 drawable abc_vector_test
 drawable bg
 drawable border
+drawable btn__circle_red
 drawable btn_circle
 drawable grasp_trace_line
 drawable ic_launcher_background
@@ -802,6 +803,7 @@ id src_in
 id src_over
 id standard
 id start
+id stopRecordBtn
 id submenuarrow
 id submit_area
 id tabMode

@@ -17,6 +17,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
@@ -71,7 +72,8 @@ public class MainActivity extends AppCompatActivity implements LocationSource,AM
     public AMapLocationClient mLocationClient;
     public AMapLocationClientOption mLocationOption = null;
     private LatLng mylocation;
-    private ToggleButton btn;
+    private Button btn;
+    private Button stopBtn;
     private PolylineOptions mPolyoptions, tracePolytion;
     private Polyline mpolyline;
     private PathRecord record;
@@ -86,9 +88,8 @@ public class MainActivity extends AppCompatActivity implements LocationSource,AM
 
     private boolean isServiceRunning;
     private boolean isGatherRunning;
-    private TextView startTrackView;
-    private TextView startGatherView;
-    private TextView btnJump;
+    private boolean isDrawEnding = true;
+    private int btnStatus = 1;
     private long terminalId;
     private long trackId;
     private boolean uploadToTrack = true;
@@ -110,26 +111,48 @@ public class MainActivity extends AppCompatActivity implements LocationSource,AM
         initpolyline();
 
         btn = findViewById(R.id.locationbtn);
+        stopBtn = findViewById(R.id.stopRecordBtn);
+
+        stopBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                aMapTrackClient.stopGather(onTrackListener);
+                aMapTrackClient.stopTrack(new TrackParam(Constants.SERVICE_ID, terminalId), onTrackListener);
+                mEndTime = System.currentTimeMillis();  //记录结束时间
+                saveRecord(record.getPathline(), record.getDate());
+
+                Intent intent = new Intent(MainActivity.this,TrackSearchActivity.class);
+                startActivity(intent);
+            }
+        });
 
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (btn.isChecked()) {
-                    startTrack();
-                    aMapTrackClient.setTrackId(trackId);
+                switch (btnStatus){
+                    case 1 :{
+                        startTrack();
+                        aMapTrackClient.setTrackId(trackId);
 
-                    record = new PathRecord();
-                    mStartTime = System.currentTimeMillis();
-                    record.setDate(getcueDate(mStartTime)); //记录开始时间
-                }else {
-                    aMapTrackClient.stopGather(onTrackListener);
-                    aMapTrackClient.stopTrack(new TrackParam(Constants.SERVICE_ID, terminalId), onTrackListener);
-                    mEndTime = System.currentTimeMillis();  //记录结束时间
-                    saveRecord(record.getPathline(), record.getDate());
-
-                    Intent intent = new Intent(MainActivity.this,TrackSearchActivity.class);
-                    startActivity(intent);
+                        record = new PathRecord();
+                        mStartTime = System.currentTimeMillis();
+                        record.setDate(getcueDate(mStartTime)); //记录开始时间
+                        btnStatus = 2;
+                        btn.setText("暂停");break;
+                    }
+                    case 2 :{
+                        isDrawEnding = false;
+                        btn.setText("继续");
+                        btnStatus = 3;break;
+                    }
+                    case 3 :{
+                        isDrawEnding = true;
+                        btn.setText("暂停");
+                        btnStatus = 2;break;
+                    }
+                    default:break;
                 }
+
             }
         });
         aMapTrackClient = new AMapTrackClient(getApplicationContext());
@@ -200,7 +223,7 @@ public class MainActivity extends AppCompatActivity implements LocationSource,AM
 
                 aMap.moveCamera(CameraUpdateFactory.changeLatLng(mylocation));
 
-                if (btn.isChecked()) {
+                if (btnStatus == 2 || isDrawEnding) {
                     record.addpoint(amapLocation);
                     mPolyoptions.add(mylocation);
                     redrawline();
@@ -485,6 +508,8 @@ public class MainActivity extends AppCompatActivity implements LocationSource,AM
     }
 
 
+
+
     public void getPermission() {
         if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.
                 permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -516,7 +541,7 @@ public class MainActivity extends AppCompatActivity implements LocationSource,AM
                         if (result != PackageManager.PERMISSION_GRANTED) {
                             Toast.makeText(this, "必须同意所有权限才能使用本程序",
                                     Toast.LENGTH_SHORT).show();
-                            finish();
+                            finish(); 
                             return;
                         }
                     }

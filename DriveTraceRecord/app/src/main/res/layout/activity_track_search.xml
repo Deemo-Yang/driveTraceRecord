@@ -179,6 +179,7 @@
             android:layout_marginLeft="10dp"
             android:gravity="center"
             android:text="查询最近轨迹"
+            android:textColor="#000000"
             android:background="#D3D3D3"/>
 
         <TextView
@@ -189,6 +190,7 @@
             android:layout_marginLeft="10dp"
             android:gravity="center"
             android:text="查询最近轨迹点"
+            android:textColor="#000000"
             android:background="#D3D3D3"/>
 
     </LinearLayout>
@@ -206,19 +208,21 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textColor="#000000"
             android:text="轨迹绑路"/>
 
         <CheckBox
             android:id="@+id/activity_track_search_bindroad"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginRight="10dp"/>
+            android:layout_marginRight="10dp" />
 
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="驾车补偿"/>
+            android:text="驾车补偿"
+            android:textColor="#000000"/>
 
         <CheckBox
             android:id="@+id/activity_track_search_recoup"

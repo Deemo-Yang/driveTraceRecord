@@ -15,22 +15,42 @@
     </com.amap.api.maps.MapView>
 
 
-
-    <ToggleButton
-        android:id="@+id/locationbtn"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:background="@drawable/btn_circle"
-        android:layout_centerInParent="true"
-        android:layout_alignParentBottom="true"
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_marginBottom="20dp"
-        android:descendantFocusability="beforeDescendants"
-        android:textOn="停止"
-        android:textOff="开始"
-        android:textSize="20dp"
-        android:textColor="#FFFFFF"
-        android:typeface="monospace">
-    </ToggleButton>
+        android:layout_centerInParent="true"
+        android:gravity="center_horizontal"
+        android:layout_alignParentBottom="true">
+
+        <Button
+            android:id="@+id/locationbtn"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:background="@drawable/btn_circle"
+            android:descendantFocusability="beforeDescendants"
+            android:text="开始"
+            android:textSize="20dp"
+            android:textColor="#FFFFFF"
+            android:typeface="monospace">
+        </Button>
+
+        <Button
+            android:id="@+id/stopRecordBtn"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:background="@drawable/btn__circle_red"
+            android:layout_marginBottom="20dp"
+            android:descendantFocusability="beforeDescendants"
+            android:text="停止"
+            android:textSize="20dp"
+            android:textColor="#FFFFFF"
+            android:typeface="monospace"
+            >
+        </Button>
+
+    </LinearLayout>
+
 
 
 
