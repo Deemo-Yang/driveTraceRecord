@@ -59,144 +59,146 @@ public class TrackSearchActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_track_search);
         aMapTrackClient = new AMapTrackClient(getApplicationContext());
-        bindRoadCheckBox = findViewById(R.id.activity_track_search_bindroad);
-        recoupCheckBox = findViewById(R.id.activity_track_search_recoup);
 
         textureMapView = findViewById(R.id.activity_track_search_map);
         textureMapView.onCreate(savedInstanceState);
 
-        findViewById(R.id.activity_track_search_search_track).setOnClickListener(new View.OnClickListener() {
+        clearTracksOnMap();
+        // 先查询terminal id，然后用terminal id查询轨迹
+        // 查询符合条件的所有轨迹，并分别绘制
+        aMapTrackClient.queryTerminal(new QueryTerminalRequest(Constants.SERVICE_ID, Constants.TERMINAL_NAME), new SimpleOnTrackListener() {
             @Override
-            public void onClick(View v) {
-                clearTracksOnMap();
-                // 先查询terminal id，然后用terminal id查询轨迹
-                // 查询符合条件的所有轨迹，并分别绘制
-                aMapTrackClient.queryTerminal(new QueryTerminalRequest(Constants.SERVICE_ID, Constants.TERMINAL_NAME), new SimpleOnTrackListener() {
-                    @Override
-                    public void onQueryTerminalCallback(final QueryTerminalResponse queryTerminalResponse) {
-                        if (queryTerminalResponse.isSuccess()) {
-                            if (queryTerminalResponse.isTerminalExist()) {
-                                long tid = queryTerminalResponse.getTid();
-                                // 搜索最近12小时以内上报的属于某个轨迹的轨迹点信息，散点上报不会包含在该查询结果中
-                                QueryTrackRequest queryTrackRequest = new QueryTrackRequest(
-                                        Constants.SERVICE_ID,
-                                        tid,
-                                        -1,     // 轨迹id，不指定，查询所有轨迹，注意分页仅在查询特定轨迹id时生效，查询所有轨迹时无法对轨迹点进行分页
-                                        System.currentTimeMillis() - 12 * 60 * 60 * 1000,
-                                        System.currentTimeMillis(),
-                                        0,      // 不启用去噪
-                                        bindRoadCheckBox.isChecked() ? 1 : 0,   // 绑路
-                                        0,      // 不进行精度过滤
-                                        DriveMode.DRIVING,  // 当前仅支持驾车模式
-                                        recoupCheckBox.isChecked() ? 1 : 0,     // 距离补偿
-                                        5000,   // 距离补偿，只有超过5km的点才启用距离补偿
-                                        1,  // 结果应该包含轨迹点信息
-                                        1,  // 返回第1页数据，但由于未指定轨迹，分页将失效
-                                        100    // 一页不超过100条
-                                );
-                                aMapTrackClient.queryTerminalTrack(queryTrackRequest, new SimpleOnTrackListener() {
-                                    @Override
-                                    public void onQueryTrackCallback(QueryTrackResponse queryTrackResponse) {
-                                        if (queryTrackResponse.isSuccess()) {
-                                            List<Track> tracks =  queryTrackResponse.getTracks();
-                                            mDisplayDistance = findViewById(R.id.dis_all_dis);
-                                            if (tracks != null && !tracks.isEmpty()) {
-                                                boolean allEmpty = true;
-                                                for (Track track : tracks) {
-                                                    List<Point> points = track.getPoints();
-                                                    if (points != null && points.size() > 0) {
-                                                        allEmpty = false;
-                                                        drawTrackOnMap(points);
-                                                        DecimalFormat decimalFormat = new DecimalFormat("0.00");
-                                                        mDisplayDistance.setText(String.valueOf(decimalFormat.format(getDistance(points)/1000)));
-                                                    }
-                                                }
-                                                if (allEmpty) {
-                                                    Toast.makeText(TrackSearchActivity.this,
-                                                            "所有轨迹都无轨迹点，请尝试放宽过滤限制，如：关闭绑路模式", Toast.LENGTH_SHORT).show();
-                                                } else {
-                                                    StringBuilder sb = new StringBuilder();
-                                                    sb.append("共查询到").append(tracks.size()).append("条轨迹，每条轨迹行驶距离分别为：");
-                                                    for (Track track : tracks) {
-                                                        sb.append(track.getDistance()).append("m,");
-                                                    }
-                                                    sb.deleteCharAt(sb.length() - 1);
-                                                    Toast.makeText(TrackSearchActivity.this, sb.toString(), Toast.LENGTH_SHORT).show();
-                                                }
-                                            } else {
-                                                Toast.makeText(TrackSearchActivity.this, "未获取到轨迹", Toast.LENGTH_SHORT).show();
+            public void onQueryTerminalCallback(final QueryTerminalResponse queryTerminalResponse) {
+                if (queryTerminalResponse.isSuccess()) {
+                    if (queryTerminalResponse.isTerminalExist()) {
+                        long tid = queryTerminalResponse.getTid();
+
+                        // 搜索最近12小时以内上报的属于某个轨迹的轨迹点信息，散点上报不会包含在该查询结果中
+                        QueryTrackRequest queryTrackRequest = new QueryTrackRequest(
+                                Constants.SERVICE_ID,
+                                tid,
+                                getIntent().getIntExtra("trackID",-1),     // 轨迹id，不指定，查询所有轨迹，注意分页仅在查询特定轨迹id时生效，查询所有轨迹时无法对轨迹点进行分页
+                                System.currentTimeMillis() - 24 * 60 * 60 * 1000,
+                                System.currentTimeMillis(),
+                                0,      // 不启用去噪
+//                                        bindRoadCheckBox.isChecked() ? 1 : 0,   // 绑路
+                                1,
+                                0,      // 不进行精度过滤
+                                DriveMode.DRIVING,  // 当前仅支持驾车模式
+                                recoupCheckBox.isChecked() ? 1 : 0,     // 距离补偿
+                                5000,   // 距离补偿，只有超过5km的点才启用距离补偿
+                                1,  // 结果应该包含轨迹点信息
+                                1,  // 返回第1页数据，但由于未指定轨迹，分页将失效
+                                100    // 一页不超过100条
+                        );
+                        aMapTrackClient.queryTerminalTrack(queryTrackRequest, new SimpleOnTrackListener() {
+                            @Override
+                            public void onQueryTrackCallback(QueryTrackResponse queryTrackResponse) {
+                                if (queryTrackResponse.isSuccess()) {
+                                    List<Track> tracks =  queryTrackResponse.getTracks();
+                                    mDisplayDistance = findViewById(R.id.dis_all_dis);
+                                    if (tracks != null && !tracks.isEmpty()) {
+                                        boolean allEmpty = true;
+                                        for (Track track : tracks) {
+                                            List<Point> points = track.getPoints();
+                                            if (points != null && points.size() > 0) {
+                                                allEmpty = false;
+                                                drawTrackOnMap(points);
+                                                DecimalFormat decimalFormat = new DecimalFormat("0.00");
+                                                mDisplayDistance.setText(String.valueOf(decimalFormat.format(getDistance(points)/1000)));
                                             }
-                                        } else {
-                                            Toast.makeText(TrackSearchActivity.this, "查询历史轨迹失败，" + queryTrackResponse.getErrorMsg(), Toast.LENGTH_SHORT).show();
                                         }
+                                        if (allEmpty) {
+                                            Toast.makeText(TrackSearchActivity.this,
+                                                    "所有轨迹都无轨迹点，请尝试放宽过滤限制，如：关闭绑路模式", Toast.LENGTH_SHORT).show();
+                                        } else {
+                                            StringBuilder sb = new StringBuilder();
+                                            sb.append("共查询到").append(tracks.size()).append("条轨迹，每条轨迹行驶距离分别为：");
+                                            for (Track track : tracks) {
+                                                sb.append(track.getDistance()).append("m,");
+                                            }
+                                            sb.deleteCharAt(sb.length() - 1);
+                                            Toast.makeText(TrackSearchActivity.this, sb.toString(), Toast.LENGTH_SHORT).show();
+                                        }
+                                    } else {
+                                        Toast.makeText(TrackSearchActivity.this, "未获取到轨迹", Toast.LENGTH_SHORT).show();
                                     }
-                                });
-                            } else {
-                                Toast.makeText(TrackSearchActivity.this, "Terminal不存在", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    Toast.makeText(TrackSearchActivity.this, "查询历史轨迹失败，" + queryTrackResponse.getErrorMsg(), Toast.LENGTH_SHORT).show();
+                                }
                             }
-                        } else {
-                            showNetErrorHint(queryTerminalResponse.getErrorMsg());
-                        }
+                        });
+                    } else {
+                        Toast.makeText(TrackSearchActivity.this, "Terminal不存在", Toast.LENGTH_SHORT).show();
                     }
-                });
+                } else {
+                    showNetErrorHint(queryTerminalResponse.getErrorMsg());
+                }
             }
         });
 
-        findViewById(R.id.activity_track_search_search_points).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                clearTracksOnMap();
-                // 先查询terminal id，然后用terminal id查询轨迹
-                // 查询符合条件的所有轨迹点，并绘制
-                aMapTrackClient.queryTerminal(new QueryTerminalRequest(Constants.SERVICE_ID, Constants.TERMINAL_NAME), new SimpleOnTrackListener() {
-                    @Override
-                    public void onQueryTerminalCallback(QueryTerminalResponse queryTerminalResponse) {
-                        if (queryTerminalResponse.isSuccess()) {
-                            if (queryTerminalResponse.isTerminalExist()) {
-                                long tid = queryTerminalResponse.getTid();
-                                // 搜索最近12小时以内上报的轨迹
-                                HistoryTrackRequest historyTrackRequest = new HistoryTrackRequest(
-                                        Constants.SERVICE_ID,
-                                        tid,
-                                        System.currentTimeMillis() - 12 * 60 * 60 * 1000,
-                                        System.currentTimeMillis(),
-                                        bindRoadCheckBox.isChecked() ? 1 : 0,
-                                        recoupCheckBox.isChecked() ? 1 : 0,
-                                        5000,   // 距离补偿，只有超过5km的点才启用距离补偿
-                                        0,  // 由旧到新排序
-                                        1,  // 返回第1页数据
-                                        100,    // 一页不超过100条
-                                        ""  // 暂未实现，该参数无意义，请留空
-                                );
-                                aMapTrackClient.queryHistoryTrack(historyTrackRequest, new SimpleOnTrackListener() {
-                                    @Override
-                                    public void onHistoryTrackCallback(HistoryTrackResponse historyTrackResponse) {
-                                        if (historyTrackResponse.isSuccess()) {
-                                            HistoryTrack historyTrack = historyTrackResponse.getHistoryTrack();
-                                            if (historyTrack == null || historyTrack.getCount() == 0) {
-                                                Toast.makeText(TrackSearchActivity.this, "未获取到轨迹点", Toast.LENGTH_SHORT).show();
-                                                return;
-                                            }
-                                            List<Point> points = historyTrack.getPoints();
-                                            drawTrackOnMap(points);
-                                            mDisplayDistance = findViewById(R.id.dis_all_dis);
-                                            DecimalFormat decimalFormat = new DecimalFormat("0.00");
-                                            mDisplayDistance.setText(String.valueOf(decimalFormat.format(getDistance(points)/1000)));
-                                        } else {
-                                            Toast.makeText(TrackSearchActivity.this, "查询历史轨迹点失败，" + historyTrackResponse.getErrorMsg(), Toast.LENGTH_SHORT).show();
-                                        }
-                                    }
-                                });
-                            } else {
-                                Toast.makeText(TrackSearchActivity.this, "Terminal不存在", Toast.LENGTH_SHORT).show();
-                            }
-                        } else {
-                            showNetErrorHint(queryTerminalResponse.getErrorMsg());
-                        }
-                    }
-                });
-            }
-        });
+//        findViewById(R.id.activity_track_search_search_track).setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//
+//            }
+//        });
+
+//        findViewById(R.id.activity_track_search_search_points).setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                clearTracksOnMap();
+//                // 先查询terminal id，然后用terminal id查询轨迹
+//                // 查询符合条件的所有轨迹点，并绘制
+//                aMapTrackClient.queryTerminal(new QueryTerminalRequest(Constants.SERVICE_ID, Constants.TERMINAL_NAME), new SimpleOnTrackListener() {
+//                    @Override
+//                    public void onQueryTerminalCallback(QueryTerminalResponse queryTerminalResponse) {
+//                        if (queryTerminalResponse.isSuccess()) {
+//                            if (queryTerminalResponse.isTerminalExist()) {
+//                                long tid = queryTerminalResponse.getTid();
+//                                // 搜索最近12小时以内上报的轨迹
+//                                HistoryTrackRequest historyTrackRequest = new HistoryTrackRequest(
+//                                        Constants.SERVICE_ID,
+//                                        tid,
+//                                        System.currentTimeMillis() - 12 * 60 * 60 * 1000,
+//                                        System.currentTimeMillis(),
+//                                        bindRoadCheckBox.isChecked() ? 1 : 0,
+//                                        recoupCheckBox.isChecked() ? 1 : 0,
+//                                        5000,   // 距离补偿，只有超过5km的点才启用距离补偿
+//                                        0,  // 由旧到新排序
+//                                        1,  // 返回第1页数据
+//                                        100,    // 一页不超过100条
+//                                        ""  // 暂未实现，该参数无意义，请留空
+//                                );
+//                                aMapTrackClient.queryHistoryTrack(historyTrackRequest, new SimpleOnTrackListener() {
+//                                    @Override
+//                                    public void onHistoryTrackCallback(HistoryTrackResponse historyTrackResponse) {
+//                                        if (historyTrackResponse.isSuccess()) {
+//                                            HistoryTrack historyTrack = historyTrackResponse.getHistoryTrack();
+//                                            if (historyTrack == null || historyTrack.getCount() == 0) {
+//                                                Toast.makeText(TrackSearchActivity.this, "未获取到轨迹点", Toast.LENGTH_SHORT).show();
+//                                                return;
+//                                            }
+//                                            List<Point> points = historyTrack.getPoints();
+//                                            drawTrackOnMap(points);
+//                                            mDisplayDistance = findViewById(R.id.dis_all_dis);
+//                                            DecimalFormat decimalFormat = new DecimalFormat("0.00");
+//                                            mDisplayDistance.setText(String.valueOf(decimalFormat.format(getDistance(points)/1000)));
+//                                        } else {
+//                                            Toast.makeText(TrackSearchActivity.this, "查询历史轨迹点失败，" + historyTrackResponse.getErrorMsg(), Toast.LENGTH_SHORT).show();
+//                                        }
+//                                    }
+//                                });
+//                            } else {
+//                                Toast.makeText(TrackSearchActivity.this, "Terminal不存在", Toast.LENGTH_SHORT).show();
+//                            }
+//                        } else {
+//                            showNetErrorHint(queryTerminalResponse.getErrorMsg());
+//                        }
+//                    }
+//                });
+//            }
+//        });
     }
 
     private void showNetErrorHint(String errorMsg) {

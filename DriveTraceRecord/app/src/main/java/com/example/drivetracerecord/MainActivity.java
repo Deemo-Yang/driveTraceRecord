@@ -1,6 +1,5 @@
 package com.example.drivetracerecord;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Notification;
@@ -8,21 +7,15 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Build;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ToggleButton;
 
 import com.amap.api.location.AMapLocation;
 import com.amap.api.location.AMapLocationClient;
@@ -60,6 +53,7 @@ import util.Constants;
 import util.PathRecord;
 import util.SimpleOnTrackLifecycleListener;
 import util.SimpleOnTrackListener;
+import util.DbAdapter;
 
 public class MainActivity extends AppCompatActivity implements LocationSource,AMapLocationListener {
 
@@ -100,11 +94,11 @@ public class MainActivity extends AppCompatActivity implements LocationSource,AM
 
     private DbAdapter DbHepler;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        getPermission();
         mMapView = findViewById(R.id.map);
         mMapView.onCreate(savedInstanceState);
         init();
@@ -122,6 +116,7 @@ public class MainActivity extends AppCompatActivity implements LocationSource,AM
                 saveRecord(record.getPathline(), record.getDate());
 
                 Intent intent = new Intent(MainActivity.this,TrackSearchActivity.class);
+                intent.putExtra("trackID",trackId);
                 startActivity(intent);
             }
         });
@@ -141,11 +136,13 @@ public class MainActivity extends AppCompatActivity implements LocationSource,AM
                         btn.setText("暂停");break;
                     }
                     case 2 :{
+                        aMapTrackClient.stopGather(onTrackListener);
                         isDrawEnding = false;
                         btn.setText("继续");
                         btnStatus = 3;break;
                     }
                     case 3 :{
+                        aMapTrackClient.startGather(onTrackListener);
                         isDrawEnding = true;
                         btn.setText("暂停");
                         btnStatus = 2;break;
@@ -180,6 +177,8 @@ public class MainActivity extends AppCompatActivity implements LocationSource,AM
 
         }
     }
+
+
 
     /** 绘图线段设置   */
     private void initpolyline() {
@@ -257,6 +256,11 @@ public class MainActivity extends AppCompatActivity implements LocationSource,AM
         }
     }
 
+    public void record(View view) {
+        Intent intent = new Intent(MainActivity.this, TrackSearchActivity.class);
+        startActivity(intent);
+    }
+
     protected void saveRecord(List<AMapLocation> list, String time) {
         if (list != null && list.size() > 0) {
             DbHepler = new DbAdapter(this);
@@ -270,7 +274,7 @@ public class MainActivity extends AppCompatActivity implements LocationSource,AM
             String stratpoint = amapLocationToString(firstLocaiton);
             String endpoint = amapLocationToString(lastLocaiton);
             DbHepler.createrecord(String.valueOf(distance), duration, average,
-                    pathlineSring, stratpoint, endpoint, time);
+                    pathlineSring, stratpoint, endpoint,String.valueOf(trackId), time);
             DbHepler.close();
         } else {
             Toast.makeText(MainActivity.this, "没有记录到路径", Toast.LENGTH_SHORT)
@@ -361,11 +365,13 @@ public class MainActivity extends AppCompatActivity implements LocationSource,AM
         public void onStartTrackCallback(int status, String msg) {
             if (status == ErrorCode.TrackListen.START_TRACK_SUCEE || status == ErrorCode.TrackListen.START_TRACK_SUCEE_NO_NETWORK) {
                 // 成功启动
-                Toast.makeText(MainActivity.this, "启动服务成功", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(MainActivity.this, "启动服务成功", Toast.LENGTH_SHORT).show();
                 isServiceRunning = true;
+                aMapTrackClient.setTrackId(trackId);
+                aMapTrackClient.startGather(onTrackListener);
             } else if (status == ErrorCode.TrackListen.START_TRACK_ALREADY_STARTED) {
                 // 已经启动
-                Toast.makeText(MainActivity.this, "服务已经启动", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(MainActivity.this, "服务已经启动", Toast.LENGTH_SHORT).show();
                 isServiceRunning = true;
             } else {
                 Log.w(TAG, "error onStartTrackCallback, status: " + status + ", msg: " + msg);
@@ -378,7 +384,7 @@ public class MainActivity extends AppCompatActivity implements LocationSource,AM
         public void onStopTrackCallback(int status, String msg) {
             if (status == ErrorCode.TrackListen.STOP_TRACK_SUCCE) {
                 // 成功停止
-                Toast.makeText(MainActivity.this, "停止服务成功", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(MainActivity.this, "停止服务成功", Toast.LENGTH_SHORT).show();
                 isServiceRunning = false;
                 isGatherRunning = false;
             } else {
@@ -395,7 +401,7 @@ public class MainActivity extends AppCompatActivity implements LocationSource,AM
             if (status == ErrorCode.TrackListen.START_GATHER_SUCEE) {
 //                Toast.makeText(MainActivity.this, "定位采集开启成功", Toast.LENGTH_SHORT).show();
             } else if (status == ErrorCode.TrackListen.START_GATHER_ALREADY_STARTED) {
-//                Toast.makeText(MainActivity.this, "定位采集已经开启", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "定位采集已经开启", Toast.LENGTH_SHORT).show();
                 isGatherRunning = true;
             } else {
                 Log.w(TAG, "error onStartGatherCallback, status: " + status + ", msg: " + msg);
@@ -408,7 +414,7 @@ public class MainActivity extends AppCompatActivity implements LocationSource,AM
         @Override
         public void onStopGatherCallback(int status, String msg) {
             if (status == ErrorCode.TrackListen.STOP_GATHER_SUCCE) {
-                Toast.makeText(MainActivity.this, "定位采集停止成功", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(MainActivity.this, "定位采集停止成功", Toast.LENGTH_SHORT).show();
                 isGatherRunning = false;
             } else {
                 Log.w(TAG, "error onStopGatherCallback, status: " + status + ", msg: " + msg);
@@ -440,14 +446,14 @@ public class MainActivity extends AppCompatActivity implements LocationSource,AM
                                     if (addTrackResponse.isSuccess()) {
                                         // trackId需要在启动服务后设置才能生效，因此这里不设置，而是在startGather之前设置了track id
                                         trackId = addTrackResponse.getTrid();
+
                                         Log.d("TrackID",String.valueOf(trackId));
                                         TrackParam trackParam = new TrackParam(Constants.SERVICE_ID, terminalId);
                                         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                                             trackParam.setNotification(createNotification());
                                         }
                                         aMapTrackClient.startTrack(trackParam, onTrackListener);
-                                        aMapTrackClient.setTrackId(trackId);
-                                        aMapTrackClient.startGather(onTrackListener);
+
                                     } else {
                                         Toast.makeText(MainActivity.this, "网络请求失败，" + addTrackResponse.getErrorMsg(), Toast.LENGTH_SHORT).show();
                                     }
@@ -507,52 +513,6 @@ public class MainActivity extends AppCompatActivity implements LocationSource,AM
         return notification;
     }
 
-
-
-
-    public void getPermission() {
-        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.
-                permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            permissionList.add(Manifest.permission.ACCESS_FINE_LOCATION);
-        }
-        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.
-                permission.READ_PHONE_STATE)!=PackageManager.PERMISSION_GRANTED) {
-            permissionList.add(Manifest.permission.READ_PHONE_STATE);
-        }
-        if (ContextCompat.checkSelfPermission (MainActivity.this, Manifest.
-                permission.WRITE_EXTERNAL_STORAGE)!=PackageManager.PERMISSION_GRANTED) {
-            permissionList.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        }
-        if (!permissionList.isEmpty()) {
-            String [] permissions = permissionList.toArray(new String[permissionList.size()]);
-            ActivityCompat.requestPermissions(MainActivity.this, permissions, 1);
-        } else {
-        }
-
-    }
-
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String [] permissions, int[] grantResults) {
-        switch (requestCode) {
-            case 1:
-                if (grantResults.length > 0) {
-                    for (int result : grantResults) {
-                        if (result != PackageManager.PERMISSION_GRANTED) {
-                            Toast.makeText(this, "必须同意所有权限才能使用本程序",
-                                    Toast.LENGTH_SHORT).show();
-                            finish(); 
-                            return;
-                        }
-                    }
-                } else {
-                    Toast.makeText(this, "发生未知错误", Toast.LENGTH_SHORT).show();
-                    finish();
-                }
-                break;
-            default:
-        }
-    }
 
     @Override
     public void activate(OnLocationChangedListener listener) {

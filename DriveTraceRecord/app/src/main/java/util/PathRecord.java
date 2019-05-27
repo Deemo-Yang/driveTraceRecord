@@ -19,10 +19,17 @@ public class PathRecord {
     private String mDuration;	//耗时
     private String mAveragespeed;	//平均速度
     private String mDate;	//记录时间
+    private String mTrackID;
     private int mId = 0;
 
     public PathRecord() {
 
+    }
+
+    public String getmTrackID() {return mTrackID; }
+
+    public void setTrackID(String mtrackID) {
+        this.mTrackID = mtrackID;
     }
 
     public int getId() {

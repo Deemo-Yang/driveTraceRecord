@@ -24,10 +24,11 @@ public class  DbAdapter {
     public static final String KEY_LINE = "pathline";
     public static final String KEY_STRAT = "stratpoint";
     public static final String KEY_END = "endpoint";
+    public static final String KEY_TRACKID = "trackid";
     public static final String KEY_DATE = "date";
     private final static String DATABASE_PATH = android.os.Environment
             .getExternalStorageDirectory().getAbsolutePath() + "/recordPath";
-    static final String DATABASE_NAME = DATABASE_PATH + "/" + "record.db";
+    static final String DATABASE_NAME = DATABASE_PATH + "/" + "trackRecord.db";
     private static final int DATABASE_VERSION = 1;
     private static final String RECORD_TABLE = "record";
     private static final String RECORD_CREATE = "create table if not exists record("
@@ -39,6 +40,7 @@ public class  DbAdapter {
             + "distance STRING,"
             + "duration STRING,"
             + "averagespeed STRING,"
+            + "trackid STRING,"
             + "date STRING" + ");";
 
     public static class DatabaseHelper extends SQLiteOpenHelper {
@@ -100,7 +102,7 @@ public class  DbAdapter {
      */
     public long createrecord(String distance, String duration,
                              String averagespeed, String pathline, String stratpoint,
-                             String endpoint, String date) {
+                             String endpoint, String trackid, String date) {
         ContentValues args = new ContentValues();
         args.put("distance", distance);
         args.put("duration", duration);
@@ -108,6 +110,7 @@ public class  DbAdapter {
         args.put("pathline", pathline);
         args.put("stratpoint", stratpoint);
         args.put("endpoint", endpoint);
+        args.put("trackid",trackid);
         args.put("date", date);
         return db.insert(RECORD_TABLE, null, args);
     }
@@ -129,6 +132,8 @@ public class  DbAdapter {
                     .getColumnIndex(DbAdapter.KEY_DISTANCE)));
             record.setDuration(allRecordCursor.getString(allRecordCursor
                     .getColumnIndex(DbAdapter.KEY_DURATION)));
+            record.setTrackID(allRecordCursor.getString(allRecordCursor
+                    .getColumnIndex(DbAdapter.KEY_TRACKID)));
             record.setDate(allRecordCursor.getString(allRecordCursor
                     .getColumnIndex(DbAdapter.KEY_DATE)));
             String lines = allRecordCursor.getString(allRecordCursor
@@ -165,6 +170,8 @@ public class  DbAdapter {
                     .getColumnIndex(DbAdapter.KEY_DISTANCE)));
             record.setDuration(cursor.getString(cursor
                     .getColumnIndex(DbAdapter.KEY_DURATION)));
+            record.setTrackID(cursor.getString(cursor
+                    .getColumnIndex(DbAdapter.KEY_TRACKID)));
             record.setDate(cursor.getString(cursor
                     .getColumnIndex(DbAdapter.KEY_DATE)));
             String lines = cursor.getString(cursor
@@ -180,7 +187,7 @@ public class  DbAdapter {
 
     private String[] getColumns() {
         return new String[] { KEY_ROWID, KEY_DISTANCE, KEY_DURATION, KEY_SPEED,
-                KEY_LINE, KEY_STRAT, KEY_END, KEY_DATE };
+                KEY_LINE, KEY_STRAT, KEY_END, KEY_TRACKID, KEY_DATE };
     }
 }
 

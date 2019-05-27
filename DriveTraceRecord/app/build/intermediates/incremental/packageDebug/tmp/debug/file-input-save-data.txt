@@ -1,21 +1,21 @@
 #Internal package file, do not edit.
-#Sun May 26 20:53:46 CST 2019
+#Mon May 27 16:21:00 CST 2019
 4.path=classes.dex
 13.baseType=DIRECTORY
-8.set=DEX
+8.set=NATIVE_RESOURCE
 6.path=classes.dex
 0.baseType=DIRECTORY
 10.path=classes.dex
 5.baseType=DIRECTORY
 1.base=/Users/yangwenying/Desktop/Doc/work/TraceRecord/DriveTraceRecord/app/build/intermediates/transforms/dexMerger/debug/20
-8.path=classes.dex
+8.path=lib/x86/libAMapSDK_MAP_v6_8_0.so
 12.path=classes.dex
 3.base=/Users/yangwenying/Desktop/Doc/work/TraceRecord/DriveTraceRecord/app/build/intermediates/transforms/dexMerger/debug/11
 14.path=lib/x86_64/libAMapSDK_MAP_v6_8_0.so
 15.set=NATIVE_RESOURCE
 4.set=DEX
 5.base=/Users/yangwenying/Desktop/Doc/work/TraceRecord/DriveTraceRecord/app/build/intermediates/transforms/dexMerger/debug/13
-7.base=/Users/yangwenying/Desktop/Doc/work/TraceRecord/DriveTraceRecord/app/build/intermediates/transforms/mergeJniLibs/debug/0
+7.base=/Users/yangwenying/Desktop/Doc/work/TraceRecord/DriveTraceRecord/app/build/intermediates/transforms/dexMerger/debug/15
 11.base=/Users/yangwenying/Desktop/Doc/work/TraceRecord/DriveTraceRecord/app/build/intermediates/transforms/dexMerger/debug/16
 9.base=/Users/yangwenying/Desktop/Doc/work/TraceRecord/DriveTraceRecord/app/build/intermediates/transforms/dexMerger/debug/14
 13.base=/Users/yangwenying/Desktop/Doc/work/TraceRecord/DriveTraceRecord/app/build/intermediates/transforms/dexMerger/debug/18
@@ -25,7 +25,7 @@
 15.base=/Users/yangwenying/Desktop/Doc/work/TraceRecord/DriveTraceRecord/app/build/intermediates/transforms/mergeJniLibs/debug/0
 14.baseType=DIRECTORY
 6.baseType=DIRECTORY
-7.set=NATIVE_RESOURCE
+7.set=DEX
 14.set=NATIVE_RESOURCE
 3.set=DEX
 2.baseType=DIRECTORY
@@ -37,7 +37,7 @@
 10.set=DEX
 5.path=classes.dex
 0.base=/Users/yangwenying/Desktop/Doc/work/TraceRecord/DriveTraceRecord/app/build/intermediates/transforms/mergeJniLibs/debug/0
-7.path=lib/x86/libAMapSDK_MAP_v6_8_0.so
+7.path=classes.dex
 11.path=classes.dex
 9.path=classes.dex
 6.set=DEX
@@ -50,7 +50,7 @@
 6.base=/Users/yangwenying/Desktop/Doc/work/TraceRecord/DriveTraceRecord/app/build/intermediates/transforms/dexMerger/debug/12
 10.base=/Users/yangwenying/Desktop/Doc/work/TraceRecord/DriveTraceRecord/app/build/intermediates/transforms/dexMerger/debug/17
 13.set=DEX
-8.base=/Users/yangwenying/Desktop/Doc/work/TraceRecord/DriveTraceRecord/app/build/intermediates/transforms/dexMerger/debug/15
+8.base=/Users/yangwenying/Desktop/Doc/work/TraceRecord/DriveTraceRecord/app/build/intermediates/transforms/mergeJniLibs/debug/0
 2.set=NATIVE_RESOURCE
 8.baseType=DIRECTORY
 12.base=/Users/yangwenying/Desktop/Doc/work/TraceRecord/DriveTraceRecord/app/build/intermediates/transforms/dexMerger/debug/19

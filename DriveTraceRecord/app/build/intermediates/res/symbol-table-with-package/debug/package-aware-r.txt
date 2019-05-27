@@ -654,6 +654,7 @@ drawable tab_menu_bg
 drawable tab_menu_channel
 drawable tab_menu_message
 drawable tab_menu_text
+drawable title_background
 drawable tooltip_frame_dark
 drawable tooltip_frame_light
 id ALT
@@ -681,11 +682,7 @@ id action_mode_close_button
 id action_text
 id actions
 id activity_chooser_view_content
-id activity_track_search_bindroad
 id activity_track_search_map
-id activity_track_search_recoup
-id activity_track_search_search_points
-id activity_track_search_search_track
 id add
 id alertTitle
 id all
