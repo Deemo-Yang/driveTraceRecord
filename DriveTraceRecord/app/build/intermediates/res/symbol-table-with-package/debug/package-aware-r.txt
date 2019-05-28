@@ -631,6 +631,7 @@ drawable abc_textfield_search_activated_mtrl_alpha
 drawable abc_textfield_search_default_mtrl_alpha
 drawable abc_textfield_search_material
 drawable abc_vector_test
+drawable back_btn_image
 drawable bg
 drawable border
 drawable btn__circle_red
@@ -688,6 +689,7 @@ id alertTitle
 id all
 id always
 id async
+id back_btn
 id barrier
 id beginDrive
 id beginning
@@ -765,6 +767,7 @@ id progress_circular
 id progress_horizontal
 id radio
 id record
+id recordlist
 id right
 id right_icon
 id right_side
@@ -791,6 +794,7 @@ id showTitle
 id show_all_dis
 id show_all_speed
 id show_all_time
+id show_record_list
 id spacer
 id split_action_bar
 id spread
@@ -814,7 +818,11 @@ id textSpacerNoTitle
 id time
 id title
 id titleDividerNoCustom
+id title_center
+id title_lly_back
+id title_lly_right
 id title_template
+id title_tv_option
 id top
 id topPanel
 id txt_channel
@@ -872,6 +880,7 @@ layout notification_template_part_chronometer
 layout notification_template_part_time
 layout record_list
 layout recorditem
+layout recordlist
 layout select_dialog_item_material
 layout select_dialog_multichoice_material
 layout select_dialog_singlechoice_material

@@ -29,6 +29,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
+        android:testOnly="true"
         android:theme="@style/Theme.AppCompat.NoActionBar" >
         <activity android:name="com.example.drivetracerecord.RecordActivity" />
         <activity android:name="com.example.drivetracerecord.HomePage" >
@@ -50,6 +51,11 @@
 
         <service android:name="com.amap.api.track.AMapTrackService" />
         <service android:name="com.amap.api.location.APSService" />
+
+        <provider
+            android:name="com.android.tools.ir.server.InstantRunContentProvider"
+            android:authorities="com.example.drivetracerecord.com.android.tools.ir.server.InstantRunContentProvider"
+            android:multiprocess="true" />
     </application>
 
 </manifest>

@@ -9,6 +9,8 @@ import android.app.PendingIntent;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -48,6 +50,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import util.Constants;
 import util.PathRecord;
@@ -90,10 +94,73 @@ public class MainActivity extends AppCompatActivity implements LocationSource,AM
 
     private TextView mResultShowDis;
     private TextView mResultShowSpeed;
-    private TextView mResultShowAveSpeed;
+    private TextView mResultShowTime;
 
     private DbAdapter DbHepler;
 
+    public static final int UPDATE_TEXT = 1;
+    private int rTime = 0;
+    private boolean isPause = false;
+
+    //子线程中更新UI
+    private Handler handler = new Handler() {
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case UPDATE_TEXT:
+                    mResultShowTime = findViewById(R.id.show_all_time);
+                    int sTime=0, mTime = 0, hTime = 0;
+                    String ssTime, smTime , shTime;
+                    ssTime="00";
+                    smTime="00:";
+                    shTime="00:";
+                    if (rTime > 60) {
+                        sTime = rTime % 60;
+                        mTime = (int) rTime / 60;
+                    }
+                    else {
+                        sTime = rTime;
+                    }
+                    if (mTime > 60) {
+                        mTime = mTime % 60;
+                        hTime = (int)mTime / 60;
+                    }
+                    if (sTime < 10) {
+                        ssTime = "0"+ sTime;
+                    }
+                    else {
+                        ssTime = "" + sTime;
+                    }
+                    if (mTime < 10) {
+                        smTime = "0"+ mTime;
+                    }
+                    else {
+                        smTime = "" + mTime;
+                    }
+                    if (hTime < 10) {
+                        shTime = "0"+ hTime;
+                    }
+                    else {
+                        shTime = "" + hTime;
+                    }
+                    mResultShowTime.setText(shTime+":"+smTime+":"+ssTime);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+    };
+
+    final Timer timer = new Timer();
+    final TimerTask task = new TimerTask() {
+        @Override
+        public void run() {
+            rTime += 1;
+            Message message = new Message();
+            message.what =UPDATE_TEXT;
+            handler.sendMessage(message);
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,6 +170,10 @@ public class MainActivity extends AppCompatActivity implements LocationSource,AM
         mMapView.onCreate(savedInstanceState);
         init();
         initpolyline();
+
+        mResultShowDis = findViewById(R.id.show_all_dis);
+        mResultShowSpeed = findViewById(R.id.show_all_speed);
+        mResultShowTime = findViewById(R.id.dis_all_time);
 
         btn = findViewById(R.id.locationbtn);
         stopBtn = findViewById(R.id.stopRecordBtn);
@@ -114,9 +185,12 @@ public class MainActivity extends AppCompatActivity implements LocationSource,AM
                 aMapTrackClient.stopTrack(new TrackParam(Constants.SERVICE_ID, terminalId), onTrackListener);
                 mEndTime = System.currentTimeMillis();  //记录结束时间
                 saveRecord(record.getPathline(), record.getDate());
-
+                timer.cancel();
+                task.cancel();
+                rTime = 0;
                 Intent intent = new Intent(MainActivity.this,TrackSearchActivity.class);
                 intent.putExtra("trackID",trackId);
+
                 startActivity(intent);
             }
         });
@@ -133,6 +207,9 @@ public class MainActivity extends AppCompatActivity implements LocationSource,AM
                         mStartTime = System.currentTimeMillis();
                         record.setDate(getcueDate(mStartTime)); //记录开始时间
                         btnStatus = 2;
+                        //计时器构造
+
+                        timer.schedule(task, 0 , 1000);
                         btn.setText("暂停");break;
                     }
                     case 2 :{
@@ -227,8 +304,6 @@ public class MainActivity extends AppCompatActivity implements LocationSource,AM
                     mPolyoptions.add(mylocation);
                     redrawline();
 
-                    mResultShowDis = findViewById(R.id.show_all_dis);
-                    mResultShowSpeed = findViewById(R.id.show_all_speed);
                     DecimalFormat decimalFormat = new DecimalFormat("0.00");
                     double tDis;
                     tDis = getDistance(record.getPathline());
@@ -365,13 +440,14 @@ public class MainActivity extends AppCompatActivity implements LocationSource,AM
         public void onStartTrackCallback(int status, String msg) {
             if (status == ErrorCode.TrackListen.START_TRACK_SUCEE || status == ErrorCode.TrackListen.START_TRACK_SUCEE_NO_NETWORK) {
                 // 成功启动
-//                Toast.makeText(MainActivity.this, "启动服务成功", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "启动服务成功", Toast.LENGTH_SHORT).show();
                 isServiceRunning = true;
                 aMapTrackClient.setTrackId(trackId);
+                Log.d("TrackID4","Here is Fouth gate");
                 aMapTrackClient.startGather(onTrackListener);
             } else if (status == ErrorCode.TrackListen.START_TRACK_ALREADY_STARTED) {
                 // 已经启动
-//                Toast.makeText(MainActivity.this, "服务已经启动", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "服务已经启动", Toast.LENGTH_SHORT).show();
                 isServiceRunning = true;
             } else {
                 Log.w(TAG, "error onStartTrackCallback, status: " + status + ", msg: " + msg);
@@ -427,7 +503,7 @@ public class MainActivity extends AppCompatActivity implements LocationSource,AM
 
 
     private void startTrack() {
-        Log.d("TrackID","Here is First gate");
+        Log.d("TrackID1","Here is First gate");
         // 先根据Terminal名称查询Terminal ID，如果Terminal还不存在，就尝试创建，拿到Terminal ID后，
         // 用Terminal ID开启轨迹服务
         aMapTrackClient.queryTerminal(new QueryTerminalRequest(Constants.SERVICE_ID, Constants.TERMINAL_NAME), new SimpleOnTrackListener() {
@@ -437,9 +513,9 @@ public class MainActivity extends AppCompatActivity implements LocationSource,AM
                     if (queryTerminalResponse.isTerminalExist()) {
                         // 当前终端已经创建过，直接使用查询到的terminal id
                         terminalId = queryTerminalResponse.getTid();
-                        Log.d("TrackID","Here is Second gate");
+                        Log.d("TrackID2","Here is Second gate");
                         if (uploadToTrack) {
-                            Log.d("TrackID","Here is Tirthd gate");
+                            Log.d("TrackID3","Here is Tirthd gate");
                             aMapTrackClient.addTrack(new AddTrackRequest(Constants.SERVICE_ID, terminalId), new SimpleOnTrackListener() {
                                 @Override
                                 public void onAddTrackCallback(AddTrackResponse addTrackResponse) {
@@ -447,7 +523,7 @@ public class MainActivity extends AppCompatActivity implements LocationSource,AM
                                         // trackId需要在启动服务后设置才能生效，因此这里不设置，而是在startGather之前设置了track id
                                         trackId = addTrackResponse.getTrid();
 
-                                        Log.d("TrackID",String.valueOf(trackId));
+                                        Log.d("TrackIDvalue",String.valueOf(trackId));
                                         TrackParam trackParam = new TrackParam(Constants.SERVICE_ID, terminalId);
                                         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                                             trackParam.setNotification(createNotification());

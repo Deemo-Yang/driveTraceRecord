@@ -1,10 +1,14 @@
 package com.example.drivetracerecord;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -53,6 +57,8 @@ public class TrackSearchActivity extends Activity {
     private List<Polyline> polylines = new LinkedList<>();
     private List<Marker> endMarkers = new LinkedList<>();
     private TextView mDisplayDistance;
+    private ImageView back_btn;
+    private Button recordList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +68,25 @@ public class TrackSearchActivity extends Activity {
 
         textureMapView = findViewById(R.id.activity_track_search_map);
         textureMapView.onCreate(savedInstanceState);
+        back_btn = findViewById(R.id.back_btn);
+        back_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(TrackSearchActivity.this, HomePage.class);
+                startActivity(intent);
+            }
+        });
+
+        recordList = findViewById(R.id.show_record_list);
+        recordList.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(TrackSearchActivity.this, RecordAdapter.class);
+                startActivity(intent);
+            }
+        });
+
+
 
         clearTracksOnMap();
         // 先查询terminal id，然后用terminal id查询轨迹
@@ -72,20 +97,21 @@ public class TrackSearchActivity extends Activity {
                 if (queryTerminalResponse.isSuccess()) {
                     if (queryTerminalResponse.isTerminalExist()) {
                         long tid = queryTerminalResponse.getTid();
+                        Log.d("TrackID", String.valueOf(getIntent().getLongExtra("trackID",-1)));
 
                         // 搜索最近12小时以内上报的属于某个轨迹的轨迹点信息，散点上报不会包含在该查询结果中
                         QueryTrackRequest queryTrackRequest = new QueryTrackRequest(
                                 Constants.SERVICE_ID,
                                 tid,
-                                getIntent().getIntExtra("trackID",-1),     // 轨迹id，不指定，查询所有轨迹，注意分页仅在查询特定轨迹id时生效，查询所有轨迹时无法对轨迹点进行分页
-                                System.currentTimeMillis() - 24 * 60 * 60 * 1000,
+                                getIntent().getLongExtra("trackID",-1),     // 轨迹id，不指定，查询所有轨迹，注意分页仅在查询特定轨迹id时生效，查询所有轨迹时无法对轨迹点进行分页
+                                System.currentTimeMillis() - 12 * 60 * 60 * 1000,
                                 System.currentTimeMillis(),
                                 0,      // 不启用去噪
 //                                        bindRoadCheckBox.isChecked() ? 1 : 0,   // 绑路
                                 1,
                                 0,      // 不进行精度过滤
                                 DriveMode.DRIVING,  // 当前仅支持驾车模式
-                                recoupCheckBox.isChecked() ? 1 : 0,     // 距离补偿
+                                1,// ,     // 距离补偿
                                 5000,   // 距离补偿，只有超过5km的点才启用距离补偿
                                 1,  // 结果应该包含轨迹点信息
                                 1,  // 返回第1页数据，但由于未指定轨迹，分页将失效

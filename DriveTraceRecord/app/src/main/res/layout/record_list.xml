@@ -4,25 +4,6 @@
     android:layout_height="match_parent"
     android:background="#C6E2FF">
 
-    <LinearLayout
-    android:id="@+id/title"
-    android:layout_width="match_parent"
-    android:layout_height="48dp"
-    android:background="#FAFAFA">
-
-    <TextView
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_gravity="center_vertical"
-    android:gravity="right"
-    android:layout_weight="1"
-    android:text="记录列表"
-    android:textSize="22dp"
-
-    android:textColor="#1E90FF"/>
-
-    </LinearLayout>
-
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
