@@ -56,7 +56,7 @@
             android:textSize="16sp" />
 
         <TextView
-            android:id="@+id/trace_record"
+            android:id="@+id/txt_message"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
@@ -66,32 +66,6 @@
             android:gravity="center"
             android:padding="5dp"
             android:text="记录"
-            android:textColor="@drawable/tab_menu_text"
-            android:textSize="16sp" />
-        <TextView
-            android:id="@+id/circle_of_friends"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="@drawable/tab_menu_bg"
-            android:drawablePadding="3dp"
-            android:drawableTop="@drawable/tab_menu_message"
-            android:gravity="center"
-            android:padding="5dp"
-            android:text="朋友圈"
-            android:textColor="@drawable/tab_menu_text"
-            android:textSize="16sp" />
-        <TextView
-            android:id="@+id/user_info"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="@drawable/tab_menu_bg"
-            android:drawablePadding="3dp"
-            android:drawableTop="@drawable/tab_menu_message"
-            android:gravity="center"
-            android:padding="5dp"
-            android:text="账户"
             android:textColor="@drawable/tab_menu_text"
             android:textSize="16sp" />
 
@@ -114,16 +88,5 @@
 
     </FrameLayout>
 
-    <Button
-        android:id="@+id/beginDrive"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@drawable/btn_circle"
-        android:width="140dp"
-        android:height="140dp"
-        android:text="开始驾车"
-        android:textSize="30dp"
-        android:layout_centerInParent="true"
-        />
 
 </RelativeLayout>

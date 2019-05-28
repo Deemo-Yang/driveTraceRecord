@@ -12,6 +12,7 @@ import android.widget.TextView;
 public class MyFragment extends Fragment {
 
     private String content;
+    private Button btn;
 
     public static MyFragment newInstance(String content) {
         MyFragment newFragment = new MyFragment();
@@ -26,12 +27,21 @@ public class MyFragment extends Fragment {
         View view = inflater.inflate(R.layout.activity_my_fragment,container,false);
         TextView txt_content = view.findViewById(R.id.txt_content);
         txt_content.setText(content);
+        btn = view.findViewById(R.id.beginDrive);
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getActivity(), MainActivity.class);
+                startActivity(intent);
+            }
+        });
         return view;
     }
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Bundle args = getArguments();
+
         if (args != null) {
             content = args.getString("content");
         }

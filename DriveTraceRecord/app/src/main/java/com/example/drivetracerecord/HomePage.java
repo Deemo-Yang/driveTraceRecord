@@ -78,14 +78,14 @@ public class HomePage extends AppCompatActivity implements View.OnClickListener{
 
 
 
-        Button beginDrive = findViewById(R.id.beginDrive);
-        beginDrive.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(HomePage.this, MainActivity.class);
-                startActivity(intent);
-            }
-        });
+//        Button beginDrive = findViewById(R.id.beginDrive);
+//        beginDrive.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Intent intent = new Intent(HomePage.this, MainActivity.class);
+//                startActivity(intent);
+//            }
+//        });
     }
 
     private void searchAllRecordFromDB() {

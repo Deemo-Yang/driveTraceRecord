@@ -33,17 +33,18 @@
         android:theme="@style/Theme.AppCompat.NoActionBar" >
         <activity android:name="com.example.drivetracerecord.RecordActivity" />
         <activity android:name="com.example.drivetracerecord.HomePage" >
+        </activity>
+        <activity android:name="com.example.drivetracerecord.TrackSearchActivity" />
+        <activity
+            android:name="com.example.drivetracerecord.MainActivity"
+            android:label="DriveTraceRecord"
+            android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.example.drivetracerecord.TrackSearchActivity" />
-        <activity
-            android:name="com.example.drivetracerecord.MainActivity"
-            android:label="DriveTraceRecord"
-            android:screenOrientation="portrait" />
 
         <meta-data
             android:name="com.amap.api.v2.apikey"
