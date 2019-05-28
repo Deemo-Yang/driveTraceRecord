@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.Pair;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -23,6 +24,8 @@ import com.amap.api.maps.model.Marker;
 import com.amap.api.maps.model.MarkerOptions;
 import com.amap.api.maps.model.Polyline;
 import com.amap.api.maps.model.PolylineOptions;
+import com.amap.api.maps.utils.SpatialRelationUtil;
+import com.amap.api.maps.utils.overlay.SmoothMoveMarker;
 import com.amap.api.track.AMapTrackClient;
 import com.amap.api.track.query.entity.DriveMode;
 import com.amap.api.track.query.entity.HistoryTrack;
@@ -51,14 +54,23 @@ public class TrackSearchActivity extends Activity {
 
     private AMapTrackClient aMapTrackClient;
 
-    private CheckBox bindRoadCheckBox;
-    private CheckBox recoupCheckBox;
     private TextureMapView textureMapView;
     private List<Polyline> polylines = new LinkedList<>();
     private List<Marker> endMarkers = new LinkedList<>();
     private TextView mDisplayDistance;
     private ImageView back_btn;
-    private Button recordList;
+    private Button playBack;
+    private List<LatLng> tracePoints;
+
+    private static final int START_STATUS=0;
+
+    private static final int MOVE_STATUS=1;
+
+    private static final int PAUSE_STATUS=2;
+    private static final int FINISH_STATUS=3;
+
+    private int mMarkerStatus=START_STATUS;
+    private SmoothMoveMarker smoothMarker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,14 +89,15 @@ public class TrackSearchActivity extends Activity {
             }
         });
 
-        recordList = findViewById(R.id.show_record_list);
-        recordList.setOnClickListener(new View.OnClickListener() {
+        playBack = findViewById(R.id.play_back);
+        playBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(TrackSearchActivity.this, RecordAdapter.class);
-                startActivity(intent);
+               playBack();
             }
         });
+
+
 
 
 
@@ -258,12 +271,72 @@ public class TrackSearchActivity extends Activity {
         for (Point p : points) {
             LatLng latLng = new LatLng(p.getLat(), p.getLng());
             polylineOptions.add(latLng);
+            tracePoints.add(latLng);
             boundsBuilder.include(latLng);
         }
+
         Polyline polyline = textureMapView.getMap().addPolyline(polylineOptions);
         polylines.add(polyline);
         textureMapView.getMap().animateCamera(CameraUpdateFactory.newLatLngBounds(boundsBuilder.build(), 30));
     }
+
+    private void playBack() {
+        LatLngBounds bounds = new LatLngBounds(tracePoints.get(0), tracePoints.get(tracePoints.size() - 2));
+        textureMapView.getMap().animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 50));
+        smoothMarker = new SmoothMoveMarker(textureMapView.getMap());
+        smoothMarker.setDescriptor(BitmapDescriptorFactory.fromResource(R.drawable.car));
+
+        LatLng drivePoint = tracePoints.get(0);
+        Pair<Integer, LatLng> pair = SpatialRelationUtil.calShortestDistancePoint(tracePoints, drivePoint);
+        tracePoints.set(pair.first, drivePoint);
+        List<LatLng> subList = tracePoints.subList(pair.first, tracePoints.size());
+
+        smoothMarker.setPoints(subList);
+    // 设置滑动的总时间
+        smoothMarker.setTotalDuration(15);
+    // 开始滑动
+        switch (mMarkerStatus) {
+            case 0: {
+                smoothMarker.startSmoothMove();
+                mMarkerStatus = MOVE_STATUS;
+                playBack.setText("暂停");break;
+            }
+            case 1: {
+                smoothMarker.stopMove();
+                mMarkerStatus = PAUSE_STATUS;
+                playBack.setText("继续");break;
+            }
+            case 2: {
+                smoothMarker.startSmoothMove();
+                mMarkerStatus = MOVE_STATUS;
+                playBack.setText("暂停");break;
+            }
+            case 3: {
+                smoothMarker.setPoints(tracePoints);
+                smoothMarker.startSmoothMove();
+                mMarkerStatus = MOVE_STATUS;
+                playBack.setText("暂停");break;
+            }
+            default:break;
+        }
+
+        smoothMarker.setMoveListener(
+                new SmoothMoveMarker.MoveListener() {
+                    @Override
+                    public void move(double distance) {
+                        if (distance == 0 ) {
+                            mMarkerStatus = FINISH_STATUS;
+                            playBack.setText("开始回放");
+                        }
+                    }
+                }
+        );
+
+
+    }
+
+
+
 
     private float getDistance(List<Point> list) {
         float distance = 0;

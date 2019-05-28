@@ -210,8 +210,8 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/show_record_list"
-            android:text="记录列表"
+            android:id="@+id/play_back"
+            android:text="开始回放"
             android:layout_marginRight="5dp"
             android:layout_marginTop="2dp"
             android:background="#1E90FF"/>
