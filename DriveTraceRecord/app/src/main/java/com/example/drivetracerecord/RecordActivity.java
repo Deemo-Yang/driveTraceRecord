@@ -36,6 +36,7 @@ public class RecordActivity extends Activity implements OnItemClickListener {
         mDataBaseHelper.open();
         searchAllRecordFromDB();
 
+
         mAdapter = new RecordAdapter(this, mAllRecord);
         mAllRecordListView.setAdapter(mAdapter);
         mAllRecordListView.setOnItemClickListener(this);
