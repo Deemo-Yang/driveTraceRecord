@@ -151,8 +151,8 @@ public class MainActivity extends AppCompatActivity implements LocationSource,AM
 
     };
 
-    final Timer timer = new Timer();
-    final TimerTask task = new TimerTask() {
+    private Timer timer = new Timer();
+    private TimerTask task = new TimerTask() {
         @Override
         public void run() {
             rTime += 1;
@@ -173,7 +173,7 @@ public class MainActivity extends AppCompatActivity implements LocationSource,AM
 
         mResultShowDis = findViewById(R.id.show_all_dis);
         mResultShowSpeed = findViewById(R.id.show_all_speed);
-        mResultShowTime = findViewById(R.id.dis_all_time);
+        mResultShowTime = findViewById(R.id.show_all_time);
 
         btn = findViewById(R.id.locationbtn);
         stopBtn = findViewById(R.id.stopRecordBtn);
@@ -216,12 +216,25 @@ public class MainActivity extends AppCompatActivity implements LocationSource,AM
                         aMapTrackClient.stopGather(onTrackListener);
                         isDrawEnding = false;
                         btn.setText("继续");
+                        timer.cancel();
+                        task.cancel();
                         btnStatus = 3;break;
                     }
                     case 3 :{
                         aMapTrackClient.startGather(onTrackListener);
                         isDrawEnding = true;
                         btn.setText("暂停");
+                        timer = new Timer();
+                        task = new TimerTask() {
+                            @Override
+                            public void run() {
+                                rTime += 1;
+                                Message message = new Message();
+                                message.what =UPDATE_TEXT;
+                                handler.sendMessage(message);
+                            }
+                        };
+                        timer.schedule(task, 0 , 1000);
                         btnStatus = 2;break;
                     }
                     default:break;
@@ -322,6 +335,9 @@ public class MainActivity extends AppCompatActivity implements LocationSource,AM
 //                    temp = (float) tDis/rTime;
 //                    double tSpeed = temp * 3600;
 //                    mResultShowAveSpeed.setText(String.valueOf(decimalFormat.format(tSpeed)+ "km/h"));
+                }
+                {
+                    mResultShowSpeed.setText(String.valueOf(0.00));
                 }
             }else {
                 String errText = "定位失败," + amapLocation.getErrorCode() + ": "

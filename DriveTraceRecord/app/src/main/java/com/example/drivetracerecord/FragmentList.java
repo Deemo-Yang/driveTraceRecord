@@ -3,6 +3,7 @@ package com.example.drivetracerecord;
 import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -53,7 +54,10 @@ public class FragmentList extends Fragment implements AdapterView.OnItemClickLis
         PathRecord recorditem = (PathRecord) parent.getAdapter().getItem(
                 position);
         Intent intent = new Intent(getActivity(),TrackSearchActivity.class);
-        intent.putExtra("trackID", recorditem.getmTrackID());
+        long trackID = Long.parseLong(recorditem.getmTrackID());
+        intent.putExtra("trackID", trackID);
+        intent.putExtra("recordID", recorditem.getId());
+        Log.d("TrackIDsend", String.valueOf(recorditem.getmTrackID()));
         startActivity(intent);
     }
 
